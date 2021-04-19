@@ -1,0 +1,4 @@
+python-igraph
+numpy
+scipy
+msgpack-python
