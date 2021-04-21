@@ -1,7 +1,14 @@
 # DYMOND
 
-**Paper Link**: [DYMOND: DYnamic MOtif-NoDes Network Generative Model](https://gisellezeno.com/files/WWW_2021-DYMOND-GZeno.pdf)  
-**Authors**: Giselle Zeno, Timothy La Fond, Jennifer Neville
+## Code
+
+- To do: add example usage documentation
+
+## Paper
+
+**PDF:** [DYMOND: DYnamic MOtif-NoDes Network Generative Model](https://gisellezeno.com/files/WWW_2021-DYMOND-GZeno.pdf)  
+**Video:** [Presentation at The Web Conference 2021](https://youtu.be/sp2sv4zl3CI)  
+**Authors:** Giselle Zeno, Timothy La Fond, Jennifer Neville
 
 ### Abstract 
 
@@ -10,7 +17,6 @@ Motifs, which have been established as building blocks for network structure, mo
 ### Citation
 
 ```bibtex
-
 @inproceedings{Zeno2021,
   title = {{{DYMOND}}: {{DYnamic MOtif}}-{{NoDes Network Generative Model}}},
   booktitle = {Proceedings of the {{Web Conference}} 2021 ({{WWW}} '21)},
