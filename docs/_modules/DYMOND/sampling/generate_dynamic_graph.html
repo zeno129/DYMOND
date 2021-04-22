@@ -1,0 +1,1060 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>DYMOND.sampling.generate_dynamic_graph &mdash; DYMOND 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> DYMOND
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../DYMOND.html">DYMOND package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../example_learn.html">Learning Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../example_generate.html">Generating Networks</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DYMOND</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>DYMOND.sampling.generate_dynamic_graph</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for DYMOND.sampling.generate_dynamic_graph</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">igraph</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">comb</span>
+<span class="kn">from</span> <span class="nn">..helpers.gzutils</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="get_active_nodes"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.get_active_nodes">[docs]</a><span class="k">def</span> <span class="nf">get_active_nodes</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">,</span> <span class="n">length_timestep</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">node_rate</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get active notes.</span>
+
+<span class="sd">    :param num_timesteps: number of timesteps</span>
+<span class="sd">    :type num_timesteps: int</span>
+<span class="sd">    :param length_timestep: length of timestep</span>
+<span class="sd">    :type length_timestep: int</span>
+<span class="sd">    :param num_nodes: number of nodes</span>
+<span class="sd">    :type num_nodes: int</span>
+<span class="sd">    :param node_rate: node arrival rate</span>
+<span class="sd">    :type node_rate: dict</span>
+<span class="sd">    :param gen_dir: directory for graph generation</span>
+<span class="sd">    :type gen_dir: str</span>
+<span class="sd">    :return: active nodes per timestep</span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get active nodes&#39;</span><span class="p">)</span>
+    <span class="n">active_nodes_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;active_nodes_gen.msg&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">active_nodes_file</span><span class="p">):</span>
+        <span class="n">last_timestep</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">V_A</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">)}</span>  <span class="c1"># initialize V_A</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">node_rate</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">node_rate</span><span class="p">[</span><span class="s1">&#39;loc&#39;</span><span class="p">])</span>
+             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">):</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">/</span> <span class="n">length_timestep</span><span class="p">))</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">t</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="n">num_timesteps</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">last_timestep</span><span class="p">:</span>
+                    <span class="n">last_timestep</span> <span class="o">=</span> <span class="n">t</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">num_timesteps</span><span class="p">):</span>
+                    <span class="n">V_A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># add to nodes that are active at time t</span>
+
+        <span class="n">active_nodes_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;V_A&#39;</span><span class="p">:</span> <span class="n">V_A</span><span class="p">,</span> <span class="s1">&#39;last_timestep&#39;</span><span class="p">:</span> <span class="n">last_timestep</span><span class="p">}</span>
+        <span class="n">msgpack_save</span><span class="p">(</span><span class="n">active_nodes_file</span><span class="p">,</span> <span class="n">active_nodes_data</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &gt;&gt; read file&#39;</span><span class="p">)</span>
+        <span class="n">active_nodes_data</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">active_nodes_file</span><span class="p">)</span>
+        <span class="n">V_A</span> <span class="o">=</span> <span class="n">active_nodes_data</span><span class="p">[</span><span class="s1">&#39;V_A&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">V_A</span></div>
+
+
+<div class="viewcode-block" id="helper_get_active_triplets"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.helper_get_active_triplets">[docs]</a><span class="k">def</span> <span class="nf">helper_get_active_triplets</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">old_nodes</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">,</span> <span class="n">motifs_t</span><span class="p">):</span>
+    <span class="n">base_message</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;`helper_get_active_triplets()`&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;t={t + 1}&#39;</span><span class="p">)</span>
+    <span class="n">triplets</span><span class="p">,</span> <span class="n">num_triplets</span> <span class="o">=</span> <span class="n">get_active_triplets</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">old_nodes</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">triplets</span> <span class="k">if</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">motifs_t</span><span class="p">),</span> <span class="n">num_triplets</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">motifs_t</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_active_triplets"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.get_active_triplets">[docs]</a><span class="k">def</span> <span class="nf">get_active_triplets</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">old_nodes</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Calculate new active triplets t={t + 1}&#39;</span><span class="p">)</span>
+    <span class="n">num_old</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_nodes</span><span class="p">)</span>
+
+    <span class="c1"># (1) 3 new nodes</span>
+    <span class="c1"># -------------------------------------------------------*</span>
+    <span class="n">triplets</span> <span class="o">=</span> <span class="n">combinations</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">num_triplets</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">comb</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">repetition</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">num_old</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># (2) 2 new + 1 old</span>
+        <span class="c1"># -------------------------------------------------------*</span>
+        <span class="n">new2_old1</span> <span class="o">=</span> <span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">w</span><span class="p">)</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">old_nodes</span><span class="p">)</span>
+                     <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">])</span>
+
+        <span class="n">triplets</span> <span class="o">=</span> <span class="n">chain</span><span class="p">(</span><span class="n">triplets</span><span class="p">,</span> <span class="n">new2_old1</span><span class="p">)</span>
+        <span class="n">num_triplets</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_nodes</span><span class="p">)</span>
+
+        <span class="c1"># (3) 1 new + 2 old</span>
+        <span class="c1"># -------------------------------------------------------*</span>
+        <span class="n">new1_old2</span> <span class="o">=</span> <span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">w</span><span class="p">)</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="n">old_nodes</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">new_nodes</span><span class="p">)</span>
+                     <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">])</span>
+
+        <span class="n">triplets</span> <span class="o">=</span> <span class="n">chain</span><span class="p">(</span><span class="n">triplets</span><span class="p">,</span> <span class="n">new1_old2</span><span class="p">)</span>
+        <span class="n">num_triplets</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">old_nodes</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">old_nodes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">triplets</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_triplets</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="estimate_motif_type_probs"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.estimate_motif_type_probs">[docs]</a><span class="k">def</span> <span class="nf">estimate_motif_type_probs</span><span class="p">(</span><span class="n">triplets</span><span class="p">,</span> <span class="n">role_distr</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate motif type probabilities for active triplets at time t.</span>
+
+<span class="sd">    :param triplets: new active triplets at time t</span>
+<span class="sd">    :type triplets: list</span>
+<span class="sd">    :param role_distr: node role probabilities</span>
+<span class="sd">    :type role_distr: dict</span>
+<span class="sd">    :param t: timestep</span>
+<span class="sd">    :type t: int</span>
+<span class="sd">    :return: motif type probabilities</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Estimate motif type probabilities&#39;</span><span class="p">)</span>
+    <span class="n">motif_type_probs</span> <span class="o">=</span> <span class="p">(</span><span class="n">helper_estimate_motif_type_probs</span><span class="p">(</span><span class="n">role_distr</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">triplets</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">motif_type_probs</span></div>
+
+
+<div class="viewcode-block" id="helper_estimate_motif_type_probs"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.helper_estimate_motif_type_probs">[docs]</a><span class="k">def</span> <span class="nf">helper_estimate_motif_type_probs</span><span class="p">(</span><span class="n">role_distr</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">motif_type</span><span class="p">):</span>
+    <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">motif</span>
+
+    <span class="k">if</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">prob_triangle</span> <span class="o">=</span> <span class="p">(</span><span class="n">role_distr</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;equal3&#39;</span><span class="p">]</span> <span class="o">*</span>
+                         <span class="n">role_distr</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;equal3&#39;</span><span class="p">]</span> <span class="o">*</span>
+                         <span class="n">role_distr</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="s1">&#39;equal3&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">prob_triangle</span>
+    <span class="k">elif</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">prob_wedge</span> <span class="o">=</span> <span class="p">((</span><span class="n">role_distr</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;hub&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;spoke&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="s1">&#39;spoke&#39;</span><span class="p">])</span> <span class="o">+</span>
+                      <span class="p">(</span><span class="n">role_distr</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;spoke&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;hub&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="s1">&#39;spoke&#39;</span><span class="p">])</span> <span class="o">+</span>
+                      <span class="p">(</span><span class="n">role_distr</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;spoke&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;spoke&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="s1">&#39;hub&#39;</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">prob_wedge</span>
+    <span class="k">elif</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">prob_edge</span> <span class="o">=</span> <span class="p">((</span><span class="n">role_distr</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;outlier&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;equal2&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="s1">&#39;equal2&#39;</span><span class="p">])</span> <span class="o">+</span>
+                     <span class="p">(</span><span class="n">role_distr</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;equal2&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;outlier&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="s1">&#39;equal2&#39;</span><span class="p">])</span> <span class="o">+</span>
+                     <span class="p">(</span><span class="n">role_distr</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;equal2&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;equal2&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">role_distr</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="s1">&#39;outlier&#39;</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">prob_edge</span></div>
+
+
+<div class="viewcode-block" id="sample_motifs"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.sample_motifs">[docs]</a><span class="k">def</span> <span class="nf">sample_motifs</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">old_nodes</span><span class="p">,</span>
+                  <span class="n">motif_props</span><span class="p">,</span>
+                  <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span>
+                  <span class="n">node_roles_assigned</span><span class="p">,</span>
+                  <span class="n">type_counts</span><span class="p">,</span>
+                  <span class="n">motif_type_rates</span><span class="p">,</span>
+                  <span class="n">t</span><span class="p">,</span> <span class="n">num_timesteps</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sample motifs from new active triplets at time t.</span>
+
+<span class="sd">    :param new_nodes: new active nodes</span>
+<span class="sd">    :type new_nodes: list</span>
+<span class="sd">    :param old_nodes: previous active nodes</span>
+<span class="sd">    :type old_nodes: list</span>
+<span class="sd">    :param motif_props: motif type proportions</span>
+<span class="sd">    :type motif_props: dict</span>
+<span class="sd">    :param role_distr: node role probabilities</span>
+<span class="sd">    :type role_distr: dict</span>
+<span class="sd">    :param role_counts: node role counts</span>
+<span class="sd">    :type role_counts: dict</span>
+<span class="sd">    :param node_roles_assigned: node roles assigned</span>
+<span class="sd">    :type node_roles_assigned: dict</span>
+<span class="sd">    :param type_counts: node motif type counts</span>
+<span class="sd">    :type type_counts: dict</span>
+<span class="sd">    :param motif_type_rates: motif type inter-arrival rates</span>
+<span class="sd">    :type motif_type_rates: dict</span>
+<span class="sd">    :param t: timestep</span>
+<span class="sd">    :type t: int</span>
+<span class="sd">    :param num_timesteps: number of timesteps</span>
+<span class="sd">    :type num_timesteps: int</span>
+<span class="sd">    :param gen_dir: directory for generated graph</span>
+<span class="sd">    :type gen_dir: str</span>
+<span class="sd">    :return: data for motifs sampled at time t</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gen_dir_t</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;t_{t+1}&#39;</span><span class="p">)</span>
+    <span class="n">motifs_t_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir_t</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;motif_data--t_{t+1}.msg&#39;</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Sample motifs t={t + 1}&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">motifs_t_file</span><span class="p">):</span>
+        <span class="n">m_types</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">motifs_t</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+        <span class="n">motifs_t_show</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+        <span class="n">motif_types_t</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">motif_timesteps_t</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">motif_rates_t</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">roles_motifs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">triplets</span><span class="p">,</span> <span class="n">num_triplets</span> <span class="o">=</span> <span class="n">get_active_triplets</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">old_nodes</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="n">triplets</span>
+
+        <span class="c1"># Calc expected counts for motif types</span>
+        <span class="n">exp_counts</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">motif_props</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_triplets</span><span class="p">))</span>
+                      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m_types</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">m_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">exp_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span><span class="n">helper_estimate_motif_type_probs</span><span class="p">(</span><span class="n">role_distr</span><span class="p">,</span> <span class="n">motif</span><span class="p">,</span> <span class="n">motif_type</span><span class="o">=</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span>
+                                 <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">type_counts</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                                          <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">motif</span><span class="p">])</span>
+                                 <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">remaining</span><span class="p">]</span>
+                <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">sample_size</span> <span class="o">=</span> <span class="n">exp_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
+                    <span class="n">num_nonzero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
+                    <span class="n">remaining</span><span class="p">,</span> <span class="n">num_remaining</span> <span class="o">=</span> <span class="n">helper_get_active_triplets</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">old_nodes</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">,</span> <span class="n">motifs_t</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">sample_size</span> <span class="o">&gt;</span> <span class="n">num_nonzero</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not sample expected counts for motif type i=</span><span class="si">{i}</span><span class="s1"> and t={t + 1}&#39;</span><span class="p">)</span>
+                        <span class="n">motifs_i</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                                        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span>
+                                        <span class="k">if</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+                        <span class="k">del</span> <span class="n">probabilities</span>
+                        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Sample motifs</span>
+                        <span class="n">motifs_i_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_remaining</span><span class="p">),</span>
+                                                             <span class="n">sample_size</span><span class="p">,</span>
+                                                             <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">,</span>
+                                                             <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+                        <span class="k">del</span> <span class="n">probabilities</span>
+                        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+                        <span class="n">motifs_i</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                                        <span class="k">for</span> <span class="n">idx_m</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span>
+                                        <span class="k">if</span> <span class="n">idx_m</span> <span class="ow">in</span> <span class="n">motifs_i_idx</span><span class="p">])</span>
+
+                    <span class="n">motifs_t</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">motifs_i</span><span class="p">)</span>
+                    <span class="n">remaining</span><span class="p">,</span> <span class="n">num_remaining</span> <span class="o">=</span> <span class="n">helper_get_active_triplets</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">old_nodes</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">,</span> <span class="n">motifs_t</span><span class="p">)</span>
+                    <span class="c1"># Save motif types</span>
+                    <span class="n">motif_types_t_i</span> <span class="o">=</span> <span class="p">{</span><span class="n">motif</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">motifs_i</span><span class="p">}</span>
+                    <span class="n">motif_types_t</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">motif_types_t</span><span class="p">,</span> <span class="o">**</span><span class="n">motif_types_t_i</span><span class="p">}</span>
+
+                    <span class="c1"># Sample motif rates and timesteps</span>
+                    <span class="n">motif_timesteps_i</span><span class="p">,</span> <span class="n">motif_rates_i</span> <span class="o">=</span> <span class="n">sample_motif_timesteps</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">,</span>
+                                                                              <span class="n">motifs_i</span><span class="p">,</span>
+                                                                              <span class="n">i</span><span class="p">,</span>
+                                                                              <span class="n">motif_type_rates</span><span class="p">,</span>
+                                                                              <span class="n">t</span><span class="p">,</span>
+                                                                              <span class="n">gen_dir</span><span class="p">)</span>
+                    <span class="n">motif_timesteps_t</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">motif_timesteps_t</span><span class="p">,</span> <span class="o">**</span><span class="n">motif_timesteps_i</span><span class="p">}</span>
+                    <span class="n">motif_rates_t</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">motif_rates_t</span><span class="p">,</span> <span class="o">**</span><span class="n">motif_rates_i</span><span class="p">}</span>
+                    <span class="n">motifs_i_show</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">motifs_i</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">motif_timesteps_i</span><span class="p">[</span><span class="n">m</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+                    <span class="n">motifs_t_show</span> <span class="o">=</span> <span class="n">motifs_t_show</span> <span class="o">|</span> <span class="n">motifs_i_show</span>
+
+                    <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span> <span class="n">roles_motifs_i</span> <span class="o">=</span> <span class="n">sample_node_roles</span><span class="p">(</span><span class="n">motifs_i_show</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">motif_timesteps_i</span><span class="p">,</span>
+                                                                                <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span>
+                                                                                <span class="n">gen_dir</span><span class="p">,</span> <span class="n">gen_dir_t</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+                    <span class="n">roles_motifs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">roles_motifs</span><span class="p">,</span> <span class="o">**</span><span class="n">roles_motifs_i</span><span class="p">}</span>
+
+        <span class="n">motifs_t_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;motifs_t&#39;</span><span class="p">:</span> <span class="n">motifs_t</span><span class="p">,</span>
+                         <span class="s1">&#39;motifs_t_show&#39;</span><span class="p">:</span> <span class="n">motifs_t_show</span><span class="p">,</span>
+                         <span class="s1">&#39;motif_types_t&#39;</span><span class="p">:</span> <span class="n">motif_types_t</span><span class="p">,</span>
+                         <span class="s1">&#39;motif_timesteps_t&#39;</span><span class="p">:</span> <span class="n">motif_timesteps_t</span><span class="p">,</span>
+                         <span class="s1">&#39;motif_rates_t&#39;</span><span class="p">:</span> <span class="n">motif_rates_t</span><span class="p">,</span>
+                         <span class="s1">&#39;roles_motifs&#39;</span><span class="p">:</span> <span class="n">roles_motifs</span><span class="p">,</span>
+                         <span class="s1">&#39;role_counts&#39;</span><span class="p">:</span> <span class="n">role_counts</span><span class="p">,</span>
+                         <span class="s1">&#39;role_distr&#39;</span><span class="p">:</span> <span class="n">role_distr</span><span class="p">,</span>
+                         <span class="s1">&#39;node_roles_assigned&#39;</span><span class="p">:</span> <span class="n">node_roles_assigned</span>
+                         <span class="p">}</span>
+        <span class="n">msgpack_save</span><span class="p">(</span><span class="n">motifs_t_file</span><span class="p">,</span> <span class="n">motifs_t_data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Read save file&#39;</span><span class="p">)</span>
+        <span class="n">motifs_t_data</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">motifs_t_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">motifs_t_data</span></div>
+
+
+<div class="viewcode-block" id="sample_node_roles"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.sample_node_roles">[docs]</a><span class="k">def</span> <span class="nf">sample_node_roles</span><span class="p">(</span><span class="n">motifs</span><span class="p">,</span> <span class="n">motif_type</span><span class="p">,</span> <span class="n">motif_timesteps</span><span class="p">,</span>
+                      <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span>
+                      <span class="n">gen_dir</span><span class="p">,</span> <span class="n">gen_dir_t</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sample node roles for motifs</span>
+
+<span class="sd">    :param motifs: motifs</span>
+<span class="sd">    :type motifs: list</span>
+<span class="sd">    :param motif_type: motif types</span>
+<span class="sd">    :type motif_type: dict</span>
+<span class="sd">    :param motif_timesteps: timesteps motifs appear in</span>
+<span class="sd">    :type motif_timesteps: dict</span>
+<span class="sd">    :param role_distr: node role probabilities</span>
+<span class="sd">    :type role_distr: dict</span>
+<span class="sd">    :param role_counts: node role counts</span>
+<span class="sd">    :type role_counts: dict</span>
+<span class="sd">    :param gen_dir: directory for generated graph</span>
+<span class="sd">    :type gen_dir: str</span>
+<span class="sd">    :param gen_dir_t: directory for graph snapshot t</span>
+<span class="sd">    :type gen_dir_t: str</span>
+<span class="sd">    :param t: timestep</span>
+<span class="sd">    :type t: int</span>
+<span class="sd">    :return: node role probabilities, counts and roles in motifs</span>
+<span class="sd">    :rtype: dict, dict, dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">roles_motifs</span> <span class="o">=</span> <span class="p">{</span><span class="n">motif</span><span class="p">:</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">motif</span><span class="p">}</span>
+                    <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">motifs</span><span class="p">}</span>
+    <span class="n">nodes_to_update</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">motifs</span><span class="p">:</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">motif</span>
+
+        <span class="k">if</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># triangle</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">motif</span><span class="p">:</span>
+                <span class="n">roles_motifs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;equal3&#39;</span>
+                <span class="n">role_counts</span> <span class="o">=</span> <span class="n">update_role_counts</span><span class="p">(</span><span class="n">role_counts</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;equal3&#39;</span><span class="p">,</span> <span class="n">motif_timesteps</span><span class="p">[</span><span class="n">motif</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># wedge</span>
+            <span class="n">hub_probs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">role_distr</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;hub&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]]</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">hub_probs</span><span class="p">)</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">hub_probs</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;hub_probs = </span><span class="si">{hub_probs}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+            <span class="c1"># sample hub</span>
+            <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">/</span><span class="n">total</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">hub_probs</span><span class="p">]</span>
+                <span class="n">hub</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hub</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]))</span>
+            <span class="c1"># others are spokes</span>
+            <span class="n">spokes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span> <span class="o">!=</span> <span class="n">hub</span><span class="p">]</span>
+            <span class="c1"># update counts for distr</span>
+            <span class="n">roles_motifs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">hub</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;hub&#39;</span>
+            <span class="n">role_counts</span> <span class="o">=</span> <span class="n">update_role_counts</span><span class="p">(</span><span class="n">role_counts</span><span class="p">,</span> <span class="n">hub</span><span class="p">,</span> <span class="s1">&#39;hub&#39;</span><span class="p">,</span> <span class="n">motif_timesteps</span><span class="p">[</span><span class="n">motif</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">spoke</span> <span class="ow">in</span> <span class="n">spokes</span><span class="p">:</span>
+                <span class="n">roles_motifs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">spoke</span><span class="p">]</span> <span class="o">=</span><span class="s1">&#39;spoke&#39;</span>
+                <span class="n">role_counts</span> <span class="o">=</span> <span class="n">update_role_counts</span><span class="p">(</span><span class="n">role_counts</span><span class="p">,</span> <span class="n">spoke</span><span class="p">,</span> <span class="s1">&#39;spoke&#39;</span><span class="p">,</span> <span class="n">motif_timesteps</span><span class="p">[</span><span class="n">motif</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 1-edge</span>
+            <span class="n">outlier_probs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">role_distr</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;outlier&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]]</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">outlier_probs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">p</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">outlier_probs</span><span class="p">]):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;outlier_probs = </span><span class="si">{outlier_probs}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="c1"># sample outlier</span>
+            <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># TODO: assert total &gt; 0</span>
+                <span class="n">probabilities</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="o">/</span> <span class="n">total</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">outlier_probs</span><span class="p">]</span>
+                <span class="n">outlier</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span> <span class="n">p</span><span class="o">=</span><span class="n">probabilities</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">outlier</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]))</span>
+            <span class="c1"># others are equal2</span>
+            <span class="n">equal2</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span> <span class="o">!=</span> <span class="n">outlier</span><span class="p">]</span>
+            <span class="c1"># update counts for distr</span>
+            <span class="n">roles_motifs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">outlier</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;outlier&#39;</span>
+            <span class="n">role_counts</span> <span class="o">=</span> <span class="n">update_role_counts</span><span class="p">(</span><span class="n">role_counts</span><span class="p">,</span> <span class="n">outlier</span><span class="p">,</span> <span class="s1">&#39;outlier&#39;</span><span class="p">,</span> <span class="n">motif_timesteps</span><span class="p">[</span><span class="n">motif</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">eq2</span> <span class="ow">in</span> <span class="n">equal2</span><span class="p">:</span>
+                <span class="n">roles_motifs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">eq2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;equal2&#39;</span>
+                <span class="n">role_counts</span> <span class="o">=</span> <span class="n">update_role_counts</span><span class="p">(</span><span class="n">role_counts</span><span class="p">,</span> <span class="n">eq2</span><span class="p">,</span> <span class="s1">&#39;equal2&#39;</span><span class="p">,</span> <span class="n">motif_timesteps</span><span class="p">[</span><span class="n">motif</span><span class="p">])</span>
+        <span class="n">nodes_to_update</span> <span class="o">=</span> <span class="n">nodes_to_update</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">motif</span><span class="p">)</span>
+    <span class="c1"># Update role distribution</span>
+    <span class="n">role_distr</span> <span class="o">=</span> <span class="n">update_role_distr</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">nodes_to_update</span><span class="p">),</span> <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gen_dir_t</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span> <span class="n">roles_motifs</span></div>
+
+
+<div class="viewcode-block" id="update_role_counts"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.update_role_counts">[docs]</a><span class="k">def</span> <span class="nf">update_role_counts</span><span class="p">(</span><span class="n">role_counts</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">role_u</span><span class="p">,</span> <span class="n">motif_timesteps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update node role counts</span>
+
+<span class="sd">    :param role_counts: node role counts</span>
+<span class="sd">    :type role_counts: dict</span>
+<span class="sd">    :param u: node to update counts for</span>
+<span class="sd">    :type u: int</span>
+<span class="sd">    :param role_u: node u&#39;s role</span>
+<span class="sd">    :type role_u: str</span>
+<span class="sd">    :param motif_timesteps: timesteps motif appears in</span>
+<span class="sd">    :type motif_timesteps: list</span>
+<span class="sd">    :return: updated role counts</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">role_counts</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="n">role_u</span><span class="p">]</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="n">motif_timesteps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">role_counts</span></div>
+
+
+<div class="viewcode-block" id="update_role_distr"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.update_role_distr">[docs]</a><span class="k">def</span> <span class="nf">update_role_distr</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gen_dir_t</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update node role probabilities</span>
+
+<span class="sd">    :param nodes: nodes</span>
+<span class="sd">    :type nodes: list</span>
+<span class="sd">    :param role_distr: node role probabilities</span>
+<span class="sd">    :type role_distr: dict</span>
+<span class="sd">    :param role_counts: node role counts</span>
+<span class="sd">    :type role_counts: dict</span>
+<span class="sd">    :param gen_dir: directory for generated graph</span>
+<span class="sd">    :type gen_dir: str</span>
+<span class="sd">    :param t: timestep</span>
+<span class="sd">    :type t: int</span>
+<span class="sd">    :param gen_dir_t: directory for generated graph snapshot t</span>
+<span class="sd">    :type gen_dir_t: str</span>
+<span class="sd">    :return: updated node role probabilities</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Update node role probabilities t={t + 1}&#39;</span><span class="p">)</span>
+    <span class="n">roles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;equal3&#39;</span><span class="p">,</span> <span class="s1">&#39;hub&#39;</span><span class="p">,</span> <span class="s1">&#39;spoke&#39;</span><span class="p">,</span> <span class="s1">&#39;equal2&#39;</span><span class="p">,</span> <span class="s1">&#39;outlier&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">:</span> <span class="n">role_counts</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">r</span><span class="p">]</span> <span class="k">if</span> <span class="n">role_counts</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">r</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">}</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">counts</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">])</span>
+        <span class="n">role_distr</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">:</span> <span class="n">counts</span><span class="p">[</span><span class="n">r</span><span class="p">]</span><span class="o">/</span><span class="n">total</span> <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">counts</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+                            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">}</span>
+
+    <span class="n">role_distr_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;role_distr.msg&#39;</span><span class="p">)</span>
+    <span class="n">msgpack_save</span><span class="p">(</span><span class="n">role_distr_file</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;role_distr&#39;</span><span class="p">:</span> <span class="n">role_distr</span><span class="p">,</span>
+                                  <span class="s1">&#39;role_counts&#39;</span><span class="p">:</span> <span class="n">role_counts</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">gen_dir_t</span><span class="p">:</span>
+        <span class="c1"># save a backup for last timestep generated</span>
+        <span class="n">role_distr_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir_t</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;role_distr.msg&#39;</span><span class="p">)</span>
+        <span class="n">msgpack_save</span><span class="p">(</span><span class="n">role_distr_file</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;role_distr&#39;</span><span class="p">:</span> <span class="n">role_distr</span><span class="p">,</span>
+                                      <span class="s1">&#39;role_counts&#39;</span><span class="p">:</span> <span class="n">role_counts</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">role_distr</span></div>
+
+
+<div class="viewcode-block" id="get_role_distr"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.get_role_distr">[docs]</a><span class="k">def</span> <span class="nf">get_role_distr</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="n">model_params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get node role probabilities</span>
+
+<span class="sd">    :param gen_dir: directory for generated graph</span>
+<span class="sd">    :type gen_dir: str</span>
+<span class="sd">    :param model_params: model parameters</span>
+<span class="sd">    :type model_params: dict</span>
+<span class="sd">    :return: node role probabilities</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">role_distr_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;role_distr.msg&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">role_distr_file</span><span class="p">):</span>  <span class="c1"># load updated distribution and counts</span>
+        <span class="n">roles_data</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">role_distr_file</span><span class="p">)</span>
+        <span class="n">role_distr</span> <span class="o">=</span> <span class="n">roles_data</span><span class="p">[</span><span class="s1">&#39;role_distr&#39;</span><span class="p">]</span>
+        <span class="n">role_counts</span> <span class="o">=</span> <span class="n">roles_data</span><span class="p">[</span><span class="s1">&#39;role_counts&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># load input params. distribution and counts</span>
+        <span class="n">role_distr</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;node roles distr&#39;</span><span class="p">]</span>
+        <span class="n">role_counts</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;node roles counts&#39;</span><span class="p">]</span>
+        <span class="n">role_distr</span> <span class="o">=</span> <span class="n">update_role_distr</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">role_counts</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                       <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span></div>
+
+
+<div class="viewcode-block" id="get_motif_edges"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.get_motif_edges">[docs]</a><span class="k">def</span> <span class="nf">get_motif_edges</span><span class="p">(</span><span class="n">motifs</span><span class="p">,</span> <span class="n">motif_types</span><span class="p">,</span> <span class="n">roles_motifs</span><span class="p">,</span> <span class="n">roles_assigned</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get motif edges</span>
+
+<span class="sd">    :param motifs: motifs</span>
+<span class="sd">    :type motifs: list</span>
+<span class="sd">    :param motif_types: motif types</span>
+<span class="sd">    :type motif_types: dict</span>
+<span class="sd">    :param roles_motifs: node roles</span>
+<span class="sd">    :type roles_motifs: dict</span>
+<span class="sd">    :param roles_assigned: node roles assigned counts</span>
+<span class="sd">    :type roles_assigned: dict</span>
+<span class="sd">    :param t: timestep</span>
+<span class="sd">    :type t: int</span>
+<span class="sd">    :param gen_dir: directory for generated graph</span>
+<span class="sd">    :type gen_dir: str</span>
+<span class="sd">    :return: motif edges, node roles assigned</span>
+<span class="sd">    :rtype: dict, dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get motif edges&#39;</span><span class="p">)</span>
+    <span class="n">gen_dir_t</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;t_{t+1}&#39;</span><span class="p">)</span>
+    <span class="n">motif_edges_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir_t</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;motif_edges_t_{t+1}.msg&#39;</span><span class="p">)</span>
+    <span class="n">roles_assigned_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;roles_assigned.msg&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">motif_edges_file</span><span class="p">):</span>
+        <span class="n">motif_edges</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &gt;&gt; sample&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">motifs</span><span class="p">:</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">motif</span>
+            <span class="n">motif_type</span> <span class="o">=</span> <span class="n">motif_types</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># triangle</span>
+                <span class="n">motif_edges</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">combinations</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="c1"># all nodes are equal3</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">motif</span><span class="p">:</span>
+                    <span class="n">roles_assigned</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;equal3&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># wedge</span>
+                <span class="c1"># get hub</span>
+                <span class="n">hub</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">motif</span> <span class="k">if</span> <span class="n">roles_motifs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;hub&#39;</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">hub</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="n">hub</span> <span class="o">=</span> <span class="n">hub</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">roles_assigned</span><span class="p">[</span><span class="n">hub</span><span class="p">][</span><span class="s1">&#39;hub&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># others are spokes</span>
+                <span class="n">spokes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span> <span class="o">!=</span> <span class="n">hub</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">spoke</span> <span class="ow">in</span> <span class="n">spokes</span><span class="p">:</span>
+                    <span class="n">roles_assigned</span><span class="p">[</span><span class="n">spoke</span><span class="p">][</span><span class="s1">&#39;spoke&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># save edges</span>
+                <span class="n">motif_edges</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="p">([</span><span class="n">hub</span><span class="p">],</span> <span class="n">spokes</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">motif_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 1-edge</span>
+                <span class="c1"># get outlier</span>
+                <span class="n">outlier</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">motif</span> <span class="k">if</span> <span class="n">roles_motifs</span><span class="p">[</span><span class="n">motif</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;outlier&#39;</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">outlier</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="n">outlier</span> <span class="o">=</span> <span class="n">outlier</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">roles_assigned</span><span class="p">[</span><span class="n">outlier</span><span class="p">][</span><span class="s1">&#39;outlier&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># others are equal2</span>
+                <span class="n">equal2</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span> <span class="o">!=</span> <span class="n">outlier</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">eq2</span> <span class="ow">in</span> <span class="n">equal2</span><span class="p">:</span>
+                    <span class="n">roles_assigned</span><span class="p">[</span><span class="n">eq2</span><span class="p">][</span><span class="s1">&#39;equal2&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># save edges</span>
+                <span class="n">motif_edges</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">equal2</span><span class="p">)]</span>
+        <span class="n">msgpack_save</span><span class="p">(</span><span class="n">motif_edges_file</span><span class="p">,</span> <span class="n">motif_edges</span><span class="p">)</span>
+        <span class="n">msgpack_save</span><span class="p">(</span><span class="n">roles_assigned_file</span><span class="p">,</span> <span class="n">roles_assigned</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &gt;&gt; read file&#39;</span><span class="p">)</span>
+        <span class="n">motif_edges</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">motif_edges_file</span><span class="p">)</span>
+        <span class="n">roles_assigned</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">roles_assigned_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">motif_edges</span><span class="p">,</span> <span class="n">roles_assigned</span></div>
+
+
+<div class="viewcode-block" id="sample_motif_timesteps"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.sample_motif_timesteps">[docs]</a><span class="k">def</span> <span class="nf">sample_motif_timesteps</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">,</span> <span class="n">motifs</span><span class="p">,</span> <span class="n">motif_type</span><span class="p">,</span> <span class="n">motif_type_rates</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">gen_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sample timesteps that the motifs will appear in.</span>
+
+<span class="sd">    :param num_timesteps: number of timesteps to generate</span>
+<span class="sd">    :type num_timesteps: int</span>
+<span class="sd">    :param motifs: motifs</span>
+<span class="sd">    :type motifs: dict</span>
+<span class="sd">    :param motif_type: motif types</span>
+<span class="sd">    :type motif_type: dict</span>
+<span class="sd">    :param motif_type_rates: motif type inter-arrival rates</span>
+<span class="sd">    :type motif_type_rates: dict</span>
+<span class="sd">    :param t: timestep</span>
+<span class="sd">    :type t: int</span>
+<span class="sd">    :param gen_dir: directory for generated graph</span>
+<span class="sd">    :type gen_dir: str</span>
+<span class="sd">    :return: motif timesteps and inter-arrival rates</span>
+<span class="sd">    :rtype: dict, dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Sample timesteps new motifs t={t + 1}&#39;</span><span class="p">)</span>
+    <span class="n">gen_dir_t</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;t_{t+1}&#39;</span><span class="p">)</span>
+    <span class="n">motif_timesteps_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_dir_t</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;motif_timesteps_t_{t+1}.msg&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Initialization</span>
+    <span class="n">motif_timesteps</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span> <span class="nb">set</span><span class="p">([])</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">motifs</span><span class="p">}</span>
+    <span class="n">motif_rates</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">motifs</span><span class="p">}</span>
+    <span class="n">prev_motifs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+
+    <span class="k">if</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">motif_timesteps_file</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Read from save file&#39;</span><span class="p">)</span>
+        <span class="n">timestep_data</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">motif_timesteps_file</span><span class="p">)</span>
+        <span class="n">motif_timesteps_prev</span> <span class="o">=</span> <span class="n">timestep_data</span><span class="p">[</span><span class="s1">&#39;motif_timesteps&#39;</span><span class="p">]</span>
+        <span class="n">motif_timesteps</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">motif_timesteps_prev</span><span class="p">)</span>
+        <span class="n">motif_rates</span> <span class="o">=</span> <span class="n">timestep_data</span><span class="p">[</span><span class="s1">&#39;motif_rates&#39;</span><span class="p">]</span>
+        <span class="n">prev_motifs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">timestep_data</span><span class="p">[</span><span class="s1">&#39;motif_timesteps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">motifs_to_do</span> <span class="o">=</span> <span class="n">motifs</span> <span class="o">-</span> <span class="n">prev_motifs</span>
+
+    <span class="k">if</span> <span class="n">motifs_to_do</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sample timesteps for remaining motifs&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">motifs_to_do</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">motif_type</span>
+
+            <span class="c1"># Sample inter-arrival rate</span>
+            <span class="n">motif_rates</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">motif_type_rates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span> <span class="o">+</span>
+                                                       <span class="n">motif_type_rates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;loc&#39;</span><span class="p">])</span>
+            <span class="n">interarrival_scale</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">motif_rates</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span>
+
+            <span class="n">curr_time</span> <span class="o">=</span> <span class="n">t</span>  <span class="c1"># first timestep motif could appear</span>
+            <span class="n">next_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">interarrival_scale</span><span class="p">)</span>
+            <span class="n">timestep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">curr_time</span> <span class="o">+</span> <span class="n">next_time</span><span class="p">))</span>
+
+            <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># debugging</span>
+            <span class="k">while</span> <span class="n">timestep</span> <span class="o">&lt;</span> <span class="n">num_timesteps</span><span class="p">:</span>
+                <span class="n">motif_timesteps</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span>  <span class="c1"># save timestep</span>
+                <span class="n">curr_time</span> <span class="o">=</span> <span class="n">timestep</span>
+                <span class="n">next_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">interarrival_scale</span><span class="p">)</span>
+                <span class="n">timestep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">curr_time</span> <span class="o">+</span> <span class="n">next_time</span><span class="p">))</span>
+
+                <span class="n">tries</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># debugging</span>
+                <span class="k">assert</span> <span class="n">tries</span> <span class="o">&lt;</span> <span class="n">num_timesteps</span>
+        <span class="n">msgpack_save</span><span class="p">(</span><span class="n">motif_timesteps_file</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;motif_timesteps&#39;</span><span class="p">:</span> <span class="n">motif_timesteps</span><span class="p">,</span>
+                                            <span class="s1">&#39;motif_rates&#39;</span><span class="p">:</span> <span class="n">motif_rates</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">motif_timesteps</span><span class="p">,</span> <span class="n">motif_rates</span></div>
+
+
+<div class="viewcode-block" id="generate_dynamic_graph"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.generate_dynamic_graph">[docs]</a><span class="k">def</span> <span class="nf">generate_dynamic_graph</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">,</span>
+                           <span class="n">length_timestep</span><span class="p">,</span>
+                           <span class="n">num_nodes</span><span class="p">,</span>
+                           <span class="n">node_rate</span><span class="p">,</span>
+                           <span class="n">motif_props</span><span class="p">,</span>
+                           <span class="n">role_distr</span><span class="p">,</span>
+                           <span class="n">role_counts</span><span class="p">,</span>
+                           <span class="n">param_subtract_type</span><span class="p">,</span>
+                           <span class="n">type_counts</span><span class="p">,</span>
+                           <span class="n">motif_type_rates</span><span class="p">,</span>
+                           <span class="n">gen_data_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate dynamic graph.</span>
+
+<span class="sd">    :param num_timesteps: number of timesteps to generate</span>
+<span class="sd">    :type num_timesteps: int</span>
+<span class="sd">    :param length_timestep: length of time</span>
+<span class="sd">    :type length_timestep: int</span>
+<span class="sd">    :param num_nodes: number of nodes</span>
+<span class="sd">    :type num_nodes: int</span>
+<span class="sd">    :param node_rate: node arrival rate</span>
+<span class="sd">    :type node_rate: dict</span>
+<span class="sd">    :param motif_props: motif type proportions</span>
+<span class="sd">    :type motif_props: dict</span>
+<span class="sd">    :param role_distr: node role probabilities</span>
+<span class="sd">    :type role_distr: dict</span>
+<span class="sd">    :param role_counts: node role counts</span>
+<span class="sd">    :type role_counts: dict</span>
+<span class="sd">    :param type_counts: motif type counts</span>
+<span class="sd">    :type type_counts: dict</span>
+<span class="sd">    :param motif_type_rates: motif type inter-arrival rates</span>
+<span class="sd">    :type motif_type_rates: dict</span>
+<span class="sd">    :param gen_data_dir: directory for generated graph</span>
+<span class="sd">    :type gen_data_dir: str</span>
+<span class="sd">    :return: generated graph data</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Generate dynamic graph&#39;</span><span class="p">)</span>
+    <span class="n">time_code</span> <span class="o">=</span> <span class="n">log_time</span><span class="p">()</span>
+
+    <span class="c1"># Get active nodes</span>
+    <span class="n">active_nodes</span> <span class="o">=</span> <span class="n">get_active_nodes</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">,</span> <span class="n">length_timestep</span><span class="p">,</span> <span class="n">num_nodes</span><span class="p">,</span> <span class="n">node_rate</span><span class="p">,</span> <span class="n">gen_data_dir</span><span class="p">)</span>
+
+    <span class="c1"># Initialization</span>
+    <span class="n">motifs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+    <span class="n">motifs_show</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+    <span class="n">motif_types</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">motif_edges</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">motif_timesteps</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">motif_rates</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">roles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;equal3&#39;</span><span class="p">,</span> <span class="s1">&#39;hub&#39;</span><span class="p">,</span> <span class="s1">&#39;spoke&#39;</span><span class="p">,</span> <span class="s1">&#39;equal2&#39;</span><span class="p">,</span> <span class="s1">&#39;outlier&#39;</span><span class="p">]</span>
+    <span class="n">motif_roles_assigned</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="p">{</span><span class="n">r</span><span class="p">:</span> <span class="mi">0</span>
+                                   <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">roles</span><span class="p">}</span>
+                               <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">)}</span>
+    <span class="n">node_roles_assigned</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="nb">set</span><span class="p">([])</span>
+                               <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">)}</span>
+                           <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">)}</span>
+
+    <span class="n">prev_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">):</span>
+        <span class="n">new_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">active_nodes</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">prev_nodes</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generate timestep t={t+1:,}&#39;</span><span class="p">)</span>
+            <span class="n">gen_dir_t</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;t_{t+1}&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gen_dir_t</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">gen_dir_t</span><span class="p">)</span>
+
+            <span class="c1"># Sample motifs</span>
+            <span class="n">motifs_t_data</span> <span class="o">=</span> <span class="n">sample_motifs</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">,</span> <span class="n">prev_nodes</span><span class="p">,</span> <span class="n">motif_props</span><span class="p">,</span>
+                                          <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span><span class="p">,</span>
+                                          <span class="n">param_subtract_type</span><span class="p">,</span>
+                                          <span class="n">node_roles_assigned</span><span class="p">,</span>
+                                          <span class="n">type_counts</span><span class="p">,</span>
+                                          <span class="n">motif_type_rates</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">num_timesteps</span><span class="p">,</span>
+                                          <span class="n">gen_data_dir</span><span class="p">)</span>
+
+            <span class="c1"># Parse data</span>
+            <span class="n">motifs_t</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;motifs_t&#39;</span><span class="p">]</span>
+            <span class="n">motifs_t_show</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;motifs_t_show&#39;</span><span class="p">]</span>
+            <span class="n">motif_types_t</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;motif_types_t&#39;</span><span class="p">]</span>
+            <span class="n">motif_timesteps_t</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;motif_timesteps_t&#39;</span><span class="p">]</span>
+            <span class="n">motif_rates_t</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;motif_rates_t&#39;</span><span class="p">]</span>
+            <span class="n">roles_t</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;roles_motifs&#39;</span><span class="p">]</span>
+            <span class="n">role_counts</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;role_counts&#39;</span><span class="p">]</span>
+            <span class="n">role_distr</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;role_distr&#39;</span><span class="p">]</span>
+            <span class="n">node_roles_assigned</span> <span class="o">=</span> <span class="n">motifs_t_data</span><span class="p">[</span><span class="s1">&#39;node_roles_assigned&#39;</span><span class="p">]</span>
+
+            <span class="c1"># Get motif edges</span>
+            <span class="n">motif_edges_t</span><span class="p">,</span> <span class="n">motif_roles_assigned</span> <span class="o">=</span> <span class="n">get_motif_edges</span><span class="p">(</span><span class="n">motifs_t_show</span><span class="p">,</span> <span class="n">motif_types_t</span><span class="p">,</span>
+                                                                  <span class="n">roles_t</span><span class="p">,</span> <span class="n">motif_roles_assigned</span><span class="p">,</span>
+                                                                  <span class="n">t</span><span class="p">,</span> <span class="n">gen_data_dir</span><span class="p">)</span>
+
+            <span class="c1"># Update</span>
+            <span class="n">motifs</span> <span class="o">=</span> <span class="n">motifs</span> <span class="o">|</span> <span class="n">motifs_t</span>
+            <span class="n">motifs_show</span> <span class="o">=</span> <span class="n">motifs_show</span> <span class="o">|</span> <span class="n">motifs_t_show</span>
+            <span class="n">motif_types</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">motif_types</span><span class="p">,</span> <span class="o">**</span><span class="n">motif_types_t</span><span class="p">}</span>
+            <span class="n">motif_timesteps</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">motif_timesteps</span><span class="p">,</span> <span class="o">**</span><span class="n">motif_timesteps_t</span><span class="p">}</span>
+            <span class="n">motif_rates</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">motif_rates</span><span class="p">,</span> <span class="o">**</span><span class="n">motif_rates_t</span><span class="p">}</span>
+            <span class="n">motif_edges</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">motif_edges</span><span class="p">,</span> <span class="o">**</span><span class="n">motif_edges_t</span><span class="p">}</span>
+
+            <span class="c1"># Next round</span>
+            <span class="n">prev_nodes</span> <span class="o">=</span> <span class="n">active_nodes</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+
+            <span class="n">total_time</span> <span class="o">=</span> <span class="n">time_code</span><span class="p">()</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Finished generating graph! </span><span class="si">{total_time}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Create dictionary with the generated graph data</span>
+    <span class="n">gen_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;num nodes&#39;</span><span class="p">:</span> <span class="n">num_nodes</span><span class="p">,</span>
+                <span class="s1">&#39;active nodes&#39;</span><span class="p">:</span> <span class="n">active_nodes</span><span class="p">,</span>
+                <span class="s1">&#39;node roles assigned&#39;</span><span class="p">:</span> <span class="n">node_roles_assigned</span><span class="p">,</span>
+                <span class="s1">&#39;motif roles assigned &#39;</span><span class="p">:</span> <span class="n">motif_roles_assigned</span><span class="p">,</span>
+                <span class="s1">&#39;motifs&#39;</span><span class="p">:</span> <span class="n">motifs</span><span class="p">,</span>
+                <span class="s1">&#39;motifs show&#39;</span><span class="p">:</span> <span class="n">motifs_show</span><span class="p">,</span>
+                <span class="s1">&#39;motif types&#39;</span><span class="p">:</span> <span class="n">motif_types</span><span class="p">,</span>
+                <span class="s1">&#39;motif edges&#39;</span><span class="p">:</span> <span class="n">motif_edges</span><span class="p">,</span>
+                <span class="s1">&#39;num timesteps&#39;</span><span class="p">:</span> <span class="n">num_timesteps</span><span class="p">,</span>
+                <span class="s1">&#39;motif timesteps&#39;</span><span class="p">:</span> <span class="n">motif_timesteps</span><span class="p">,</span>
+                <span class="s1">&#39;motif rates&#39;</span><span class="p">:</span> <span class="n">motif_rates</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">gen_data</span></div>
+
+
+<div class="viewcode-block" id="get_generated_graph_data"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.get_generated_graph_data">[docs]</a><span class="k">def</span> <span class="nf">get_generated_graph_data</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">num_timesteps</span><span class="p">,</span> <span class="n">model_params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate graph data.</span>
+
+<span class="sd">    :param dataset_dir: dataset directory</span>
+<span class="sd">    :type dataset_dir: str</span>
+<span class="sd">    :param dataset_name: dataset name</span>
+<span class="sd">    :type dataset_name: str</span>
+<span class="sd">    :param num_timesteps: number of timesteps to generate</span>
+<span class="sd">    :type num_timesteps: int</span>
+<span class="sd">    :param model_params: model parameters</span>
+<span class="sd">    :type model_params: dict</span>
+<span class="sd">    :return: generated graph data</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gen_data_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">,</span> <span class="s1">&#39;gen_data.msg&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">(</span><span class="n">gen_data_file</span><span class="p">):</span>
+        <span class="n">length_timestep</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">]</span>
+        <span class="n">num_nodes</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+        <span class="n">node_rate</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;node arrivals&#39;</span><span class="p">]</span>
+        <span class="n">motif_props</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;motif proportions&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Get node role probabilities</span>
+        <span class="n">role_distr</span><span class="p">,</span> <span class="n">role_counts</span> <span class="o">=</span> <span class="n">get_role_distr</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">,</span> <span class="n">model_params</span><span class="p">)</span>
+        <span class="n">type_counts</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;node motif types counts&#39;</span><span class="p">]</span>
+        <span class="n">motif_type_rates</span> <span class="o">=</span> <span class="n">model_params</span><span class="p">[</span><span class="s1">&#39;motif interarrivals&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Generate dynamic graph</span>
+        <span class="n">gen_data</span> <span class="o">=</span> <span class="n">generate_dynamic_graph</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">,</span>
+                                          <span class="n">length_timestep</span><span class="p">,</span>
+                                          <span class="n">num_nodes</span><span class="p">,</span>
+                                          <span class="n">node_rate</span><span class="p">,</span>
+                                          <span class="n">motif_props</span><span class="p">,</span>
+                                          <span class="n">role_distr</span><span class="p">,</span>
+                                          <span class="n">role_counts</span><span class="p">,</span>
+                                          <span class="n">type_counts</span><span class="p">,</span>
+                                          <span class="n">motif_type_rates</span><span class="p">,</span>
+                                          <span class="n">gen_data_dir</span><span class="p">)</span>
+
+        <span class="n">msgpack_save</span><span class="p">(</span><span class="n">gen_data_file</span><span class="p">,</span> <span class="n">gen_data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Read generated data&#39;</span><span class="p">)</span>
+        <span class="n">gen_data</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">gen_data_file</span><span class="p">)</span>
+
+    <span class="c1"># Check edge data</span>
+    <span class="k">if</span> <span class="s1">&#39;graph edges&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gen_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">motifs_show</span> <span class="o">=</span> <span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;motifs show&#39;</span><span class="p">]</span>
+        <span class="n">motif_types</span> <span class="o">=</span> <span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;motif types&#39;</span><span class="p">]</span>
+        <span class="n">motif_edges</span> <span class="o">=</span> <span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;motif edges&#39;</span><span class="p">]</span>
+        <span class="n">motif_timesteps</span> <span class="o">=</span> <span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;motif timesteps&#39;</span><span class="p">]</span>
+        <span class="n">num_timesteps</span> <span class="o">=</span> <span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;num timesteps&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Get graph edges</span>
+        <span class="n">graph_edges</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="nb">set</span><span class="p">([])</span>
+                       <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">)}</span>
+        <span class="n">counts_per_timestep</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="mi">0</span>
+                                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)}</span>
+                               <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">)}</span>
+
+        <span class="k">for</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">motifs_show</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">motif</span> <span class="ow">in</span> <span class="n">motif_timesteps</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">motif_types</span><span class="p">[</span><span class="n">motif</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">motif_timesteps</span><span class="p">[</span><span class="n">motif</span><span class="p">]:</span>
+                    <span class="n">counts_per_timestep</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">the_edges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">motif_edges</span><span class="p">[</span><span class="n">motif</span><span class="p">]])</span>
+                    <span class="n">graph_edges</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph_edges</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">|</span> <span class="n">the_edges</span>
+        <span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;graph edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph_edges</span>
+
+    <span class="k">return</span> <span class="n">gen_data</span></div>
+
+
+<div class="viewcode-block" id="create_igraph"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.create_igraph">[docs]</a><span class="k">def</span> <span class="nf">create_igraph</span><span class="p">(</span><span class="n">gen_data</span><span class="p">,</span> <span class="n">gen_data_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create igraph.Graph object</span>
+
+<span class="sd">    :param gen_data: generated graph data</span>
+<span class="sd">    :type gen_data: dict</span>
+<span class="sd">    :param gen_data_dir: directory for generated graph</span>
+<span class="sd">    :type gen_data_dir: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Create igraph.Graph&#39;</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">edge_timesteps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;num timesteps&#39;</span><span class="p">]):</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;graph edges&#39;</span><span class="p">][</span><span class="n">t</span><span class="p">])</span>
+        <span class="n">edge_timesteps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;graph edges&#39;</span><span class="p">][</span><span class="n">t</span><span class="p">]))</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">igraph</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">gen_data</span><span class="p">[</span><span class="s1">&#39;num nodes&#39;</span><span class="p">],</span>
+                     <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span>
+                     <span class="n">edge_attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;timestep&#39;</span><span class="p">:</span> <span class="n">edge_timesteps</span><span class="p">}</span>
+                     <span class="p">)</span>
+
+    <span class="n">g_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;generated_graph.pklz&#39;</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">write_picklez</span><span class="p">(</span><span class="n">g_path</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Generated graph path:  {os.path.abspath(g_path)}&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_directories_generated_graph"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.get_directories_generated_graph">[docs]</a><span class="k">def</span> <span class="nf">get_directories_generated_graph</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get directories for model parameters and generated graph.</span>
+
+<span class="sd">    :param dataset_dir: dataset directory</span>
+<span class="sd">    :type dataset_dir: str</span>
+<span class="sd">    :return: directories for model parameters and generated graph</span>
+<span class="sd">    :rtype: str, str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate parameters directory</span>
+    <span class="n">params_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;learned_parameters&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">params_dir</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Dataset parameters directory not found.</span><span class="se">\n</span><span class="si">{dataset_dir}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">),</span> <span class="n">params_dir</span><span class="p">)</span>
+
+    <span class="c1"># Directory to save generated graph</span>
+    <span class="n">gen_data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params_dir</span><span class="p">,</span> <span class="s1">&#39;generated_graph&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">params_dir</span><span class="p">,</span> <span class="n">gen_data_dir</span></div>
+
+
+<div class="viewcode-block" id="get_parameters"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.get_parameters">[docs]</a><span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="n">params_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get model parameters</span>
+
+<span class="sd">    :param params_dir: parameters directory</span>
+<span class="sd">    :type params_dir: str</span>
+<span class="sd">    :return: model parameters</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Read model parameters&#39;</span><span class="p">)</span>
+    <span class="n">model_params_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params_dir</span><span class="p">,</span> <span class="s1">&#39;model_params.msg&#39;</span><span class="p">)</span>
+    <span class="n">model_params</span> <span class="o">=</span> <span class="n">msgpack_load</span><span class="p">(</span><span class="n">model_params_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model_params</span></div>
+
+
+<div class="viewcode-block" id="dymond_generate"><a class="viewcode-back" href="../../../DYMOND.sampling.html#DYMOND.sampling.generate_dynamic_graph.dymond_generate">[docs]</a><span class="k">def</span> <span class="nf">dymond_generate</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">num_timesteps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run graph generation</span>
+
+<span class="sd">    :param dataset_dir: dataset directory</span>
+<span class="sd">    :type dataset_dir: str</span>
+<span class="sd">    :param dataset_name: dataset name</span>
+<span class="sd">    :type dataset_name: str</span>
+<span class="sd">    :param num_timesteps: number of timesteps to generate</span>
+<span class="sd">    :type num_timesteps: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get directories for model parameters and generated graph</span>
+    <span class="n">params_dir</span><span class="p">,</span> <span class="n">gen_data_dir</span> <span class="o">=</span> <span class="n">get_directories_generated_graph</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">)</span>
+
+    <span class="c1"># Get model parameters</span>
+    <span class="n">model_params</span> <span class="o">=</span> <span class="n">get_parameters</span><span class="p">(</span><span class="n">params_dir</span><span class="p">)</span>
+
+    <span class="c1"># Generate graph</span>
+    <span class="n">gen_data</span> <span class="o">=</span> <span class="n">get_generated_graph_data</span><span class="p">(</span><span class="n">gen_data_dir</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">num_timesteps</span><span class="p">,</span> <span class="n">model_params</span><span class="p">)</span>
+
+    <span class="c1"># Create igraph</span>
+    <span class="n">create_igraph</span><span class="p">(</span><span class="n">gen_data</span><span class="p">,</span> <span class="n">gen_data_dir</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">gc</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dymond_generate</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dataset_name</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">num_timesteps</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Graph generation failed!&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Required parameters: dataset path, name, and number of timesteps to generate.&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Giselle Zeno.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

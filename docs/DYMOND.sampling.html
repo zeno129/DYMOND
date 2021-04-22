@@ -1,0 +1,575 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>DYMOND.sampling package &mdash; DYMOND 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Learning Parameters" href="example_learn.html" />
+    <link rel="prev" title="DYMOND.learning package" href="DYMOND.learning.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> DYMOND
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="DYMOND.html">DYMOND package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="DYMOND.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="DYMOND.learning.html">DYMOND.learning package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">DYMOND.sampling package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-DYMOND.sampling.generate_dynamic_graph">DYMOND.sampling.generate_dynamic_graph module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-DYMOND.sampling">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DYMOND.html#module-DYMOND">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_learn.html">Learning Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_generate.html">Generating Networks</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DYMOND</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="DYMOND.html">DYMOND package</a> &raquo;</li>
+        
+      <li>DYMOND.sampling package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/DYMOND.sampling.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dymond-sampling-package">
+<h1>DYMOND.sampling package<a class="headerlink" href="#dymond-sampling-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-DYMOND.sampling.generate_dynamic_graph">
+<span id="dymond-sampling-generate-dynamic-graph-module"></span><h2>DYMOND.sampling.generate_dynamic_graph module<a class="headerlink" href="#module-DYMOND.sampling.generate_dynamic_graph" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.create_igraph">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">create_igraph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gen_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_data_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#create_igraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.create_igraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create igraph.Graph object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gen_data</strong> (<em>dict</em>) – generated graph data</p></li>
+<li><p><strong>gen_data_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.dymond_generate">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">dymond_generate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_timesteps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#dymond_generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.dymond_generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run graph generation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_dir</strong> (<em>str</em>) – dataset directory</p></li>
+<li><p><strong>dataset_name</strong> (<em>str</em>) – dataset name</p></li>
+<li><p><strong>num_timesteps</strong> (<em>int</em>) – number of timesteps to generate</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.estimate_motif_type_probs">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">estimate_motif_type_probs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">triplets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#estimate_motif_type_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.estimate_motif_type_probs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate motif type probabilities for active triplets at time t.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>triplets</strong> (<em>list</em>) – new active triplets at time t</p></li>
+<li><p><strong>role_distr</strong> (<em>dict</em>) – node role probabilities</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>motif type probabilities</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.generate_dynamic_graph">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">generate_dynamic_graph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_props</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_subtract_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_type_rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_data_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#generate_dynamic_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.generate_dynamic_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate dynamic graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_timesteps</strong> (<em>int</em>) – number of timesteps to generate</p></li>
+<li><p><strong>length_timestep</strong> (<em>int</em>) – length of time</p></li>
+<li><p><strong>num_nodes</strong> (<em>int</em>) – number of nodes</p></li>
+<li><p><strong>node_rate</strong> (<em>dict</em>) – node arrival rate</p></li>
+<li><p><strong>motif_props</strong> (<em>dict</em>) – motif type proportions</p></li>
+<li><p><strong>role_distr</strong> (<em>dict</em>) – node role probabilities</p></li>
+<li><p><strong>role_counts</strong> (<em>dict</em>) – node role counts</p></li>
+<li><p><strong>type_counts</strong> (<em>dict</em>) – motif type counts</p></li>
+<li><p><strong>motif_type_rates</strong> (<em>dict</em>) – motif type inter-arrival rates</p></li>
+<li><p><strong>gen_data_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>generated graph data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.get_active_nodes">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">get_active_nodes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#get_active_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.get_active_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get active notes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_timesteps</strong> (<em>int</em>) – number of timesteps</p></li>
+<li><p><strong>length_timestep</strong> (<em>int</em>) – length of timestep</p></li>
+<li><p><strong>num_nodes</strong> (<em>int</em>) – number of nodes</p></li>
+<li><p><strong>node_rate</strong> (<em>dict</em>) – node arrival rate</p></li>
+<li><p><strong>gen_dir</strong> (<em>str</em>) – directory for graph generation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>active nodes per timestep</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.get_active_triplets">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">get_active_triplets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#get_active_triplets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.get_active_triplets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.get_directories_generated_graph">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">get_directories_generated_graph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#get_directories_generated_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.get_directories_generated_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get directories for model parameters and generated graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_dir</strong> (<em>str</em>) – dataset directory</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>directories for model parameters and generated graph</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str, str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.get_generated_graph_data">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">get_generated_graph_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gen_data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#get_generated_graph_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.get_generated_graph_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate graph data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_dir</strong> (<em>str</em>) – dataset directory</p></li>
+<li><p><strong>dataset_name</strong> (<em>str</em>) – dataset name</p></li>
+<li><p><strong>num_timesteps</strong> (<em>int</em>) – number of timesteps to generate</p></li>
+<li><p><strong>model_params</strong> (<em>dict</em>) – model parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>generated graph data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.get_motif_edges">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">get_motif_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">motifs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roles_motifs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roles_assigned</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#get_motif_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.get_motif_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get motif edges</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>motifs</strong> (<em>list</em>) – motifs</p></li>
+<li><p><strong>motif_types</strong> (<em>dict</em>) – motif types</p></li>
+<li><p><strong>roles_motifs</strong> (<em>dict</em>) – node roles</p></li>
+<li><p><strong>roles_assigned</strong> (<em>dict</em>) – node roles assigned counts</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+<li><p><strong>gen_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>motif edges, node roles assigned</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict, dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.get_parameters">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">get_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#get_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get model parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params_dir</strong> (<em>str</em>) – parameters directory</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>model parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.get_role_distr">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">get_role_distr</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#get_role_distr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.get_role_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get node role probabilities</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gen_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+<li><p><strong>model_params</strong> (<em>dict</em>) – model parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>node role probabilities</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.helper_estimate_motif_type_probs">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">helper_estimate_motif_type_probs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role_distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#helper_estimate_motif_type_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.helper_estimate_motif_type_probs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.helper_get_active_triplets">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">helper_get_active_triplets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motifs_t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#helper_get_active_triplets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.helper_get_active_triplets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.sample_motif_timesteps">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">sample_motif_timesteps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motifs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_type_rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#sample_motif_timesteps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.sample_motif_timesteps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample timesteps that the motifs will appear in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_timesteps</strong> (<em>int</em>) – number of timesteps to generate</p></li>
+<li><p><strong>motifs</strong> (<em>dict</em>) – motifs</p></li>
+<li><p><strong>motif_type</strong> (<em>dict</em>) – motif types</p></li>
+<li><p><strong>motif_type_rates</strong> (<em>dict</em>) – motif type inter-arrival rates</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+<li><p><strong>gen_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>motif timesteps and inter-arrival rates</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict, dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.sample_motifs">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">sample_motifs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_props</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_roles_assigned</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_type_rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#sample_motifs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.sample_motifs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample motifs from new active triplets at time t.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_nodes</strong> (<em>list</em>) – new active nodes</p></li>
+<li><p><strong>old_nodes</strong> (<em>list</em>) – previous active nodes</p></li>
+<li><p><strong>motif_props</strong> (<em>dict</em>) – motif type proportions</p></li>
+<li><p><strong>role_distr</strong> (<em>dict</em>) – node role probabilities</p></li>
+<li><p><strong>role_counts</strong> (<em>dict</em>) – node role counts</p></li>
+<li><p><strong>node_roles_assigned</strong> (<em>dict</em>) – node roles assigned</p></li>
+<li><p><strong>type_counts</strong> (<em>dict</em>) – node motif type counts</p></li>
+<li><p><strong>motif_type_rates</strong> (<em>dict</em>) – motif type inter-arrival rates</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+<li><p><strong>num_timesteps</strong> (<em>int</em>) – number of timesteps</p></li>
+<li><p><strong>gen_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>data for motifs sampled at time t</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.sample_node_roles">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">sample_node_roles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">motifs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_timesteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#sample_node_roles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.sample_node_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample node roles for motifs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>motifs</strong> (<em>list</em>) – motifs</p></li>
+<li><p><strong>motif_type</strong> (<em>dict</em>) – motif types</p></li>
+<li><p><strong>motif_timesteps</strong> (<em>dict</em>) – timesteps motifs appear in</p></li>
+<li><p><strong>role_distr</strong> (<em>dict</em>) – node role probabilities</p></li>
+<li><p><strong>role_counts</strong> (<em>dict</em>) – node role counts</p></li>
+<li><p><strong>gen_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+<li><p><strong>gen_dir_t</strong> (<em>str</em>) – directory for graph snapshot t</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>node role probabilities, counts and roles in motifs</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict, dict, dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.update_role_counts">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">update_role_counts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">role_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">motif_timesteps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#update_role_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.update_role_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update node role counts</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>role_counts</strong> (<em>dict</em>) – node role counts</p></li>
+<li><p><strong>u</strong> (<em>int</em>) – node to update counts for</p></li>
+<li><p><strong>role_u</strong> (<em>str</em>) – node u’s role</p></li>
+<li><p><strong>motif_timesteps</strong> (<em>list</em>) – timesteps motif appears in</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>updated role counts</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="DYMOND.sampling.generate_dynamic_graph.update_role_distr">
+<code class="sig-prename descclassname"><span class="pre">DYMOND.sampling.generate_dynamic_graph.</span></code><code class="sig-name descname"><span class="pre">update_role_distr</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_distr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_dir_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DYMOND/sampling/generate_dynamic_graph.html#update_role_distr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#DYMOND.sampling.generate_dynamic_graph.update_role_distr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update node role probabilities</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<em>list</em>) – nodes</p></li>
+<li><p><strong>role_distr</strong> (<em>dict</em>) – node role probabilities</p></li>
+<li><p><strong>role_counts</strong> (<em>dict</em>) – node role counts</p></li>
+<li><p><strong>gen_dir</strong> (<em>str</em>) – directory for generated graph</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+<li><p><strong>gen_dir_t</strong> (<em>str</em>) – directory for generated graph snapshot t</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>updated node role probabilities</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-DYMOND.sampling">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-DYMOND.sampling" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="example_learn.html" class="btn btn-neutral float-right" title="Learning Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="DYMOND.learning.html" class="btn btn-neutral float-left" title="DYMOND.learning package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Giselle Zeno.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
