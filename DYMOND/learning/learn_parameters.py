@@ -6,8 +6,7 @@ import errno
 import igraph
 from scipy.special import comb
 from scipy.stats import expon
-sys.path.append(os.path.realpath('..'))
-from gzutils import *
+from ..helpers.gzutils import *
 
 
 def learn_node_arrival_rates(g, timesteps, tmp_files_dir):

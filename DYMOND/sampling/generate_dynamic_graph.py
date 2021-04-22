@@ -9,8 +9,7 @@ from itertools import combinations
 from itertools import product
 from itertools import chain
 from scipy.special import comb
-sys.path.append(os.path.realpath('..'))
-from gzutils import *
+from ..helpers.gzutils import *
 
 
 def get_active_nodes(num_timesteps, length_timestep, num_nodes, node_rate, gen_dir):
@@ -824,7 +823,7 @@ def get_parameters(params_dir):
     return model_params
 
 
-def main(dataset_dir, dataset_name, num_timesteps):
+def dymond_generate(dataset_dir, dataset_name, num_timesteps):
     """
     Run graph generation
 
@@ -853,7 +852,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 4:
         try:
-            main(dataset_dir=sys.argv[1], dataset_name=sys.argv[2], num_timesteps=int(sys.argv[3]))
+            dymond_generate(dataset_dir=sys.argv[1], dataset_name=sys.argv[2], num_timesteps=int(sys.argv[3]))
         except Exception as e:
             logging.error('Graph generation failed!')
             raise e
