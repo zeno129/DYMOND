@@ -7,12 +7,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Learning Parameters &mdash; DYMOND 1.0.0 documentation</title>
+  <title>Learning Parameters &mdash; DYMOND 1.0.1 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,6 +31,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -168,15 +171,15 @@
 <h1>Learning Parameters<a class="headerlink" href="#learning-parameters" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="code">
 <h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
-<p>To learn the model parameters, you can run <code class="docutils literal notranslate"><span class="pre">learn_parameters.py</span></code> directly on the command line</p>
+<p>To learn the model parameters, you can run <code class="docutils literal notranslate"><span class="pre">learn_parameters.py</span></code> directly on the command line:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python learn_parameters.py <span class="s1">&#39;path/to/dataset_directory&#39;</span>
 </pre></div>
 </div>
-<p>or from your own Python code</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">learn_parameters</span> <span class="kn">import</span> <span class="n">get_dataset</span><span class="p">,</span> <span class="n">learn_parameters</span>
-
-<span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_info</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="s1">&#39;path/to/dataset_directory&#39;</span><span class="p">)</span>
-<span class="n">learn_parameters</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_info</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+<p>or from your own Python code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>  <span class="kn">from</span> <span class="nn">learn_parameters</span> <span class="kn">import</span> <span class="n">get_dataset</span><span class="p">,</span> <span class="n">learn_parameters</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span>  <span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_info</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="n">get_dataset</span><span class="p">(</span><span class="n">dataset_dir</span><span class="o">=</span><span class="s1">&#39;path/to/dataset_directory&#39;</span><span class="p">)</span>
+<span class="linenos">4</span>  <span class="n">learn_parameters</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">dataset_info</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -186,51 +189,52 @@
 <div class="section" id="graph">
 <h3>Graph<a class="headerlink" href="#graph" title="Permalink to this headline">¶</a></h3>
 <p>Create igraph file for dataset as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">igraph</span>
-
-<span class="c1"># Create igraph</span>
-<span class="n">g</span> <span class="o">=</span> <span class="n">igraph</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>  <span class="c1"># nodes is a a list with the nodes</span>
-                 <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">edges</span><span class="o">=</span><span class="n">edge_list</span><span class="p">,</span>  <span class="c1"># list of edges (not unique), with indices in node list (u,v)</span>
-                 <span class="n">edge_attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;timestep&#39;</span><span class="p">:</span> <span class="n">edge_timesteps</span><span class="p">}</span>  <span class="c1"># list of timesteps, one for each edge in edge_list</span>
-                 <span class="p">)</span>
-
-<span class="c1"># Annotate with time when nodes become active</span>
-<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vs</span><span class="p">:</span>
-    <span class="n">v</span><span class="p">[</span><span class="s1">&#39;nid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;nid-</span><span class="si">{v.index}</span><span class="s1">&#39;</span>  <span class="c1"># Annotate with original index</span>
-    <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">v</span><span class="p">)]))</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">v_edges</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">_between</span><span class="o">=</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">index</span><span class="p">],</span> <span class="n">neighbors</span><span class="p">))</span>
-        <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">v_edges</span><span class="p">[</span><span class="s1">&#39;timestep&#39;</span><span class="p">])</span>
-
-<span class="c1"># Save to file</span>
-<span class="n">graph_filename</span> <span class="o">=</span> <span class="s1">&#39;dataset_name.pklz&#39;</span>
-<span class="n">g</span><span class="o">.</span><span class="n">write_pickle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">graph_filename</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span>  <span class="kn">import</span> <span class="nn">igraph</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span>  <span class="c1"># Create igraph</span>
+<span class="linenos"> 4</span>  <span class="n">g</span> <span class="o">=</span> <span class="n">igraph</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">),</span>  <span class="c1"># nodes is a a list with the nodes</span>
+<span class="linenos"> 5</span>                   <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos"> 6</span>                   <span class="n">edges</span><span class="o">=</span><span class="n">edge_list</span><span class="p">,</span>  <span class="c1"># list of edges (not unique), with indices in node list (u,v)</span>
+<span class="linenos"> 7</span>                   <span class="n">edge_attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;timestep&#39;</span><span class="p">:</span> <span class="n">edge_timesteps</span><span class="p">}</span>  <span class="c1"># list of timesteps, one for each edge in edge_list</span>
+<span class="linenos"> 8</span>                   <span class="p">)</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span>  <span class="c1"># Annotate with time when nodes become active</span>
+<span class="linenos">11</span>  <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">vs</span><span class="p">:</span>
+<span class="linenos">12</span>      <span class="n">v</span><span class="p">[</span><span class="s1">&#39;nid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;nid-</span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">index</span><span class="si">}</span><span class="s1">&#39;</span>  <span class="c1"># Annotate with original index</span>
+<span class="linenos">13</span>      <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">v</span><span class="p">)]))</span>
+<span class="linenos">14</span>      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="linenos">15</span>          <span class="n">v_edges</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">es</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">_between</span><span class="o">=</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">index</span><span class="p">],</span> <span class="n">neighbors</span><span class="p">))</span>
+<span class="linenos">16</span>          <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">v_edges</span><span class="p">[</span><span class="s1">&#39;timestep&#39;</span><span class="p">])</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>  <span class="c1"># Save to file</span>
+<span class="linenos">19</span>  <span class="n">graph_filename</span> <span class="o">=</span> <span class="s1">&#39;dataset_name.pklz&#39;</span>  <span class="c1"># name you want to use for your dataset</span>
+<span class="linenos">20</span>  <span class="n">g</span><span class="o">.</span><span class="n">write_picklez</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="n">graph_filename</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="dataset-info">
 <h3>Dataset info<a class="headerlink" href="#dataset-info" title="Permalink to this headline">¶</a></h3>
 <p>Create dataset info file as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
-
-<span class="n">dataset_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gname&#39;</span><span class="p">:</span> <span class="n">graph_filename</span><span class="p">,</span>
-                <span class="s1">&#39;L&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">vcount</span><span class="p">(),</span>
-                <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">timesteps</span><span class="p">),</span>
-                <span class="s1">&#39;timesteps&#39;</span><span class="p">:</span> <span class="n">timesteps</span>
-<span class="p">}</span>
-
-<span class="n">dataset_info_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;dataset_info.pkl&#39;</span><span class="p">)</span>
-<span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">dataset_info_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
-<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">dataset_info</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span>  <span class="kn">import</span> <span class="nn">pickle</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span>  <span class="n">dataset_info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gname&#39;</span><span class="p">:</span> <span class="n">graph_filename</span><span class="p">,</span>
+<span class="linenos"> 4</span>                  <span class="s1">&#39;L&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="linenos"> 5</span>                  <span class="s1">&#39;N&#39;</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">vcount</span><span class="p">(),</span>
+<span class="linenos"> 6</span>                  <span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">timesteps</span><span class="p">),</span>
+<span class="hll"><span class="linenos"> 7</span>                  <span class="s1">&#39;timesteps&#39;</span><span class="p">:</span> <span class="n">timesteps</span>
+</span><span class="linenos"> 8</span>  <span class="p">}</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span>  <span class="n">dataset_info_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset_dir</span><span class="p">,</span> <span class="s1">&#39;dataset_info.pkl&#39;</span><span class="p">)</span>
+<span class="linenos">11</span>  <span class="n">output</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">dataset_info_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+<span class="linenos">12</span>  <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">dataset_info</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">timesteps</span></code> is a list of possible timesteps in case they are not sequential (i.e., 1…T)</p>
 </div>
 </div>
 <div class="section" id="output-files">
 <h2>Output files<a class="headerlink" href="#output-files" title="Permalink to this headline">¶</a></h2>
-<p>Parameters will be saved to <code class="docutils literal notranslate"><span class="pre">path/to/dataset_directory/learned_parameters/model_params.msg</span></code>.</p>
+<p>Parameters will be saved to <code class="docutils literal notranslate"><span class="pre">path/to/dataset_directory/learned_parameters/model_params.msg</span></code></p>
 </div>
 </div>
 

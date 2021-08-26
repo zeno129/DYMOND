@@ -616,7 +616,7 @@ def learn_parameters(dataset_dir, dataset_info, g):
     # Save parameters
     msgpack_save(model_params_file, model_params)
 
-    total_time = time_elapsed()
+    total_time = time_elapsed('')
     logging.info(f'Learn parameters done. {total_time}')
 
 

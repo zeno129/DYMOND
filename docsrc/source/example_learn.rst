@@ -4,15 +4,16 @@ Learning Parameters
 Code
 ----
 
-To learn the model parameters, you can run ``learn_parameters.py`` directly on the command line
+To learn the model parameters, you can run ``learn_parameters.py`` directly on the command line:
 
 .. code-block:: bash
 
     python learn_parameters.py 'path/to/dataset_directory'
 
-or from your own Python code
+or from your own Python code:
 
 .. code-block:: python
+  :linenos:
 
     from learn_parameters import get_dataset, learn_parameters
 
@@ -29,6 +30,7 @@ Graph
 Create igraph file for dataset as follows:
 
 .. code-block:: python
+  :linenos:
 
     import igraph
 
@@ -48,8 +50,8 @@ Create igraph file for dataset as follows:
             v['active'] = min(v_edges['timestep'])
 
     # Save to file
-    graph_filename = 'dataset_name.pklz'
-    g.write_pickle(os.path.join(dataset_dir, graph_filename))
+    graph_filename = 'dataset_name.pklz'  # name you want to use for your dataset
+    g.write_picklez(os.path.join(dataset_dir, graph_filename))
 
 
 Dataset info
@@ -57,6 +59,8 @@ Dataset info
 Create dataset info file as follows:
 
 .. code-block:: python
+  :linenos:
+  :emphasize-lines: 7
 
     import pickle
 
@@ -71,8 +75,10 @@ Create dataset info file as follows:
     output = open(dataset_info_file, 'wb')
     pickle.dump(dataset_info, output)
 
+Note: ``timesteps`` is a list of possible timesteps in case they are not sequential (i.e., 1...T)
+
 Output files
 ------------
 
-Parameters will be saved to ``path/to/dataset_directory/learned_parameters/model_params.msg``.
+Parameters will be saved to ``path/to/dataset_directory/learned_parameters/model_params.msg``
 

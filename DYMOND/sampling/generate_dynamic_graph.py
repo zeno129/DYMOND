@@ -56,7 +56,7 @@ def get_active_nodes(num_timesteps, length_timestep, num_nodes, node_rate, gen_d
 
 
 def helper_get_active_triplets(new_nodes, old_nodes, t, gen_dir, motifs_t):
-    base_message(f'`helper_get_active_triplets()`', f't={t + 1}')
+    logging.info(f'`helper_get_active_triplets()`', f't={t + 1}')
     triplets, num_triplets = get_active_triplets(new_nodes, old_nodes, t)
     return (m for m in triplets if frozenset(m) not in motifs_t), num_triplets - len(motifs_t)
 
@@ -569,7 +569,6 @@ def generate_dynamic_graph(num_timesteps,
                            motif_props,
                            role_distr,
                            role_counts,
-                           param_subtract_type,
                            type_counts,
                            motif_type_rates,
                            gen_data_dir):
@@ -633,7 +632,6 @@ def generate_dynamic_graph(num_timesteps,
             # Sample motifs
             motifs_t_data = sample_motifs(new_nodes, prev_nodes, motif_props,
                                           role_distr, role_counts,
-                                          param_subtract_type,
                                           node_roles_assigned,
                                           type_counts,
                                           motif_type_rates, t, num_timesteps,
@@ -666,7 +664,7 @@ def generate_dynamic_graph(num_timesteps,
             # Next round
             prev_nodes = active_nodes[t]
 
-            total_time = time_code()
+            total_time = time_code('')
             logging.info(f'Finished generating graph! {total_time}')
 
     # Create dictionary with the generated graph data
@@ -685,14 +683,12 @@ def generate_dynamic_graph(num_timesteps,
     return gen_data
 
 
-def get_generated_graph_data(gen_data_dir, dataset_name, num_timesteps, model_params):
+def get_generated_graph_data(gen_data_dir, num_timesteps, model_params):
     """
     Generate graph data.
 
     :param dataset_dir: dataset directory
     :type dataset_dir: str
-    :param dataset_name: dataset name
-    :type dataset_name: str
     :param num_timesteps: number of timesteps to generate
     :type num_timesteps: int
     :param model_params: model parameters
@@ -823,7 +819,7 @@ def get_parameters(params_dir):
     return model_params
 
 
-def dymond_generate(dataset_dir, dataset_name, num_timesteps):
+def dymond_generate(dataset_dir, num_timesteps):
     """
     Run graph generation
 
@@ -841,7 +837,7 @@ def dymond_generate(dataset_dir, dataset_name, num_timesteps):
     model_params = get_parameters(params_dir)
 
     # Generate graph
-    gen_data = get_generated_graph_data(gen_data_dir, dataset_name, num_timesteps, model_params)
+    gen_data = get_generated_graph_data(gen_data_dir, num_timesteps, model_params)
 
     # Create igraph
     create_igraph(gen_data, gen_data_dir)
@@ -850,11 +846,11 @@ def dymond_generate(dataset_dir, dataset_name, num_timesteps):
 if __name__ == '__main__':
     gc.enable()
 
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 3:
         try:
-            dymond_generate(dataset_dir=sys.argv[1], dataset_name=sys.argv[2], num_timesteps=int(sys.argv[3]))
+            dymond_generate(dataset_dir=sys.argv[1], num_timesteps=int(sys.argv[2]))
         except Exception as e:
             logging.error('Graph generation failed!')
             raise e
     else:
-        logging.error('Required parameters: dataset path, name, and number of timesteps to generate.')
+        logging.error('Required parameters: dataset path and number of timesteps to generate.')
